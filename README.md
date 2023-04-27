@@ -8,6 +8,6 @@ Original Keras implimentation: https://github.com/gokriznastic/HybridSN
 
 ## Model
 
-<img src="HSI-RN.jpg"/>
+<img src="\items\HSI-RN.jpg"/>
 
 Fig: HybridSpectralNet (HybridSN) Model with 3D and 2D convolutions for hyperspectral image (HSI) classification.
