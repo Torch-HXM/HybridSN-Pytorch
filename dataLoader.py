@@ -25,16 +25,24 @@ class IndianPines(Dataset):
         return self.img.shape[0]
 
 class GetData():
-    def __init__(self, windowSize=15, C=30, testRatio=0.7) -> None:
+    def __init__(self, windowSize=15, C=30) -> None:
         self.windowSize = windowSize
         self.C = C
-        self.testRatio = testRatio
 
-    def loadData(self)->Tuple[np.ndarray, np.ndarray]:
-        img = sio.loadmat("datasets/Indian_pines_corrected.mat")["indian_pines_corrected"]
-        label = sio.loadmat("datasets/Indian_pines_gt.mat")["indian_pines_gt"]
-        
-        return img, label
+    def loadData(self, name:str="IP")->Tuple[np.ndarray, np.ndarray]:
+        assert name=="IP" or name == "PU" or name=="SA"
+        if name == "IP":
+            img = sio.loadmat("datasets/Indian_pines_corrected.mat")["indian_pines_corrected"]
+            label = sio.loadmat("datasets/Indian_pines_gt.mat")["indian_pines_gt"]
+            return img, label
+        elif name == "PU":
+            img = sio.loadmat("datasets/PaviaU.mat")["paviaU"]
+            label = sio.loadmat("datasets/PaviaU_gt.mat")["paviaU_gt"]
+            return img, label
+        elif name == "SA":
+            img = sio.loadmat("datasets/Salinas_corrected.mat")["salinas_corrected"]
+            label = sio.loadmat("datasets/Salinas_gt.mat")["salinas_gt"]
+            return img, label
 
     def splitTrainTestSet(self, X, y, testRatio, randomState=345):
         # print("y:", y.shape)
@@ -113,15 +121,15 @@ class GetData():
             patchesLabels -= 1
         return patchesData, patchesLabels
 
-    def getData(self):
+    def getData(self, name:str="IP", testRatio:float=0.8):
 
-        X, y = self.loadData()
+        X, y = self.loadData(name=name)
         X,pca = self.applyPCA(X,numComponents=self.C)
         X, y = self.createImageCubes(X, y, windowSize=self.windowSize)
         # X: (10249, 15, 15, 30)  y: (10249,)
         X = X.swapaxes(2, 3)
         X = X.swapaxes(1, 2)
-        Xtrain, Xtest, ytrain, ytest, class_num = self.splitTrainTestSet(X, y, self.testRatio)
+        Xtrain, Xtest, ytrain, ytest, class_num = self.splitTrainTestSet(X, y, testRatio)
         Xtrain = Xtrain.reshape(-1, 1, self.C, self.windowSize, self.windowSize)
         Xtest = Xtest.reshape(-1, 1, self.C, self.windowSize, self.windowSize)
 
@@ -133,8 +141,8 @@ class GetData():
         return Xtrain, ytrain, Xtest, ytest, class_num
 
 if __name__ == "__main__":
-    getData = GetData(windowSize=15, C=30, testRatio=0.7)
-    X, Y, x, y, class_num = getData.getData()
+    getData = GetData(windowSize=15, C=30)
+    X, Y, x, y, class_num = getData.getData(name="PU", testRatio=0.8)
     print(X.shape)
     print(Y.shape)
     print(x.shape)
